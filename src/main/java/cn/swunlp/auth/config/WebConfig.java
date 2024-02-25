@@ -1,4 +1,4 @@
-package cn.swunlp.XX.config;
+package cn.swunlp.auth.config;
 
 /**
  * @author TangXi
@@ -6,5 +6,4 @@ package cn.swunlp.XX.config;
  */
 
 public class WebConfig {
-    // Your class implementation goes here
 }

@@ -1,18 +1,23 @@
 server:
-  port: 8080
+  port: 9999
   servlet:
-    context-path: /xxx
-spring:
-  datasource:
-    dynamic:
-      primary: master #设置默认的数据源或者数据源组,默认值即为master
-      strict: false #设置严格模式,默认false不启动. 启动后在未匹配到指定数据源时候回抛出异常,不启动会使用默认数据源.
-      datasource:
-        master:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://192.168.0.88:13001/finder_chat?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8
-          username: root
-          password: FZmpyzISL0T4Wk7
+    context-path: /auth
 logging:
   level:
-    cn.swunlp.*: debug
+    cn.swunlp.*: warn
+spring:
+  data:
+    redis:
+      host: 192.168.0.88
+      port: 26379
+      password: 3ycieqF5o30uQHZ
+  cloud:
+    nacos:
+      discovery:
+        username: test_service
+        password: mC5KCw5PYFnQJ2V
+        server-addr: 192.168.0.9:8848
+        group: DEV
+        namespace: 1f84f72e-a565-441a-b1cb-a3c71a94431e
+  application:
+    name: authService
