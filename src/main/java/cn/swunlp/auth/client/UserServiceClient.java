@@ -18,6 +18,6 @@ public interface UserServiceClient {
      * @param token token
      * @return 用户权限信息
      */
-    @GetMapping("/login/loadAuthenticatedUserprofile")
+    @GetMapping("/user/auth/loadAuthenticatedUserprofile")
     AuthenticatedUserProfile getUserProfile(@RequestParam("token") String token);
 }

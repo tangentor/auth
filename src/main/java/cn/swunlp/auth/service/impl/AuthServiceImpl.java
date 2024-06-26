@@ -38,17 +38,27 @@ public class AuthServiceImpl implements AuthService {
     private final int expireTime = 60;
     @Override
     public AuthResult authFromGateway(String token, String uri) {
-        // 检查是否有缓存,同一用户的同一请求不需要重复鉴权，缓存时间为1分钟
-        String id = DigestUtils.md5DigestAsHex((token + uri).getBytes());
-        if(authResultCache.exist(id)){
-            return authResultCache.get(id);
-        }
         // 匹配路由权限
         RoutePermission matched = routePermissionManager.match(uri);
         if(matched == null) {
             throw new RoutePermissionException("路由路径不存在");
         }
+        // 不需要鉴权
+        if(isNotRequired(matched)){
+            return new AuthResult(1, "当前路径：" + uri + "，不需要鉴权");
+        }
+        if(token == null) {
+            return new AuthResult(0, "用户未登录");
+        }
+        // 检查是否有缓存,同一用户的同一请求不需要重复鉴权，缓存时间为1分钟
+        String id = DigestUtils.md5DigestAsHex((token + uri).getBytes());
+        if(authResultCache.exist(id)){
+            return authResultCache.get(id);
+        }
+
         AuthenticatedUserProfile userProfile = userServiceClient.getUserProfile(token);
+        System.out.println(token);
+        System.out.println("用户权限信息："+userProfile);
         if(userProfile == null){
             throw new BusinessException("用户凭证无效");
         }
@@ -75,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
             isAccess = checkRole(methodPermission.getRoles(), userProfile) || checkPermission(methodPermission.getPermissions(), userProfile);
         }
         // 提示信息
-        authResult.setMsg("当前路径：" + matched.getUri() + "，用户：" + userProfile.getUsername() + "，" + (isAccess ? "有" : "无") + "权限访问");
+        authResult.setMsg("用户：" + userProfile.getUsername() + "，" + (isAccess ? "有" : "无") + "权限访问");
         if(isAccess) {
             authResult.setCode(1);
             authResult.setUsername(userProfile.getUsername());
@@ -90,6 +100,18 @@ public class AuthServiceImpl implements AuthService {
             authResult.setCode(0);
         }
         return authResult;
+    }
+
+    /**
+     * 是否不需要鉴权,此时不检测token
+     * 当前版本检测规则：
+     *  1. 路由权限中没有任何权限信息
+     *  2. 路由权限中没有任何角色信息
+     * @param routePermission 路由权限
+     */
+    private boolean isNotRequired(RoutePermission routePermission) {
+        MethodPermission methodPermission = routePermission.getMethodPermission();
+        return methodPermission.getPermissions() == null && methodPermission.getRoles() == null;
     }
 
     /**
@@ -115,7 +137,7 @@ public class AuthServiceImpl implements AuthService {
      * 检查用户角色，使用白名单模式,当出现NOT_REQUIRED时，直接返回true
      */
     private boolean checkRole(String[] roles, AuthenticatedUserProfile userProfile) {
-        if(roles == null){
+        if(roles == null || userProfile.getRoles() == null){
             return false;
         }
         for (String role : roles) {

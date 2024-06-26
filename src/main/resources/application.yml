@@ -5,6 +5,7 @@ server:
 logging:
   level:
     cn.swunlp.*: warn
+    feign: debug
 spring:
   data:
     redis:
