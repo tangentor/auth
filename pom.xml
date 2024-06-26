@@ -6,11 +6,11 @@
     <parent>
         <groupId>cn.swunlp</groupId>
         <artifactId>backend-base</artifactId>
-        <version>0.0.4-Alpha</version>
+        <version>0.0.5-Alpha</version>
     </parent>
 
     <artifactId>backend-auth</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>auth-service</name>
     <description>鉴权服务</description>
 
