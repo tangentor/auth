@@ -1,5 +1,6 @@
 package cn.swunlp.auth.service.impl;
 
+import cn.swunlp.auth.cache.AppAuthConfigCache;
 import cn.swunlp.auth.entity.RoutePermission;
 import cn.swunlp.auth.manager.RoutePermissionManager;
 import cn.swunlp.auth.service.ApplicationService;
@@ -21,6 +22,11 @@ import java.util.List;
 @Slf4j
 public class RegisterServiceImpl implements RegisterService {
 
+    /**
+     * 是否由平台介入管理应用权
+     */
+    private final AppAuthConfigCache appAuthConfigCache;
+
     private final ApplicationService applicationService;
 
     // 路由权限管理器
@@ -31,6 +37,13 @@ public class RegisterServiceImpl implements RegisterService {
         //验证应用的名称编码合法性
         validateAppInfo(appPermission);
         log.info("应用信息验证通过");
+        // 是否已经由平台接管
+        Boolean flag = appAuthConfigCache.get(appPermission.getApplicationName());
+        if (flag!= null && flag) {
+            log.info("应用{}已经由平台接管", appPermission.getApplicationName());
+            //return AppRegisterResult.PLATFORM_INTERVENE; // 平台介入管理应用权限
+            return AppRegisterResult.SUCCESS;
+        }
         //解析传递过来的应用权限
         return parseAppPermission(appPermission);
     }

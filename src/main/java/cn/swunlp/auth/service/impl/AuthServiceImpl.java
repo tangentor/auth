@@ -1,7 +1,9 @@
 package cn.swunlp.auth.service.impl;
 
+import cn.swunlp.auth.cache.AppInfoCache;
 import cn.swunlp.auth.cache.AuthResultCache;
 import cn.swunlp.auth.client.UserServiceClient;
+import cn.swunlp.auth.entity.ApplicationInfo;
 import cn.swunlp.auth.entity.RoutePermission;
 import cn.swunlp.auth.exception.RoutePermissionException;
 import cn.swunlp.auth.manager.RoutePermissionManager;
@@ -13,6 +15,8 @@ import cn.swunlp.backend.base.security.entity.AuthenticatedUserProfile;
 import cn.swunlp.backend.base.security.entity.MethodPermission;
 import cn.swunlp.backend.base.web.constant.AuthResult;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -26,16 +30,15 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    private final AppInfoCache appInfoCache;
+
     private final AuthResultCache authResultCache;
 
     private final UserServiceClient userServiceClient;
 
     private final RoutePermissionManager routePermissionManager;
 
-    /**
-     * 缓存过期时间
-     */
-    private final int expireTime = 60;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     @Override
     public AuthResult authFromGateway(String token, String uri) {
         // 匹配路由权限
@@ -57,13 +60,13 @@ public class AuthServiceImpl implements AuthService {
         }
 
         AuthenticatedUserProfile userProfile = userServiceClient.getUserProfile(token);
-        System.out.println(token);
-        System.out.println("用户权限信息："+userProfile);
+        logger.info("用户信息："+userProfile);
         if(userProfile == null){
             throw new BusinessException("用户凭证无效");
         }
         AuthResult authResult = checkUserPermission(userProfile, matched);
         // 缓存鉴权结果
+        int expireTime = 60;
         authResultCache.set(id, authResult, expireTime);
         return authResult;
     }
@@ -74,6 +77,11 @@ public class AuthServiceImpl implements AuthService {
      * @param matched 匹配的路由权限
      */
     private AuthResult checkUserPermission(AuthenticatedUserProfile userProfile, RoutePermission matched) {
+        // 检查应用层面是否控制
+        ApplicationInfo info = appInfoCache.get(matched.getAppName());
+        if(!info.isAccessible()){
+            return new AuthResult(0, "当前应用：" + matched.getAppName() + "，已被禁止访问");
+        }
         AuthResult authResult = new AuthResult();
         // 具体的方法所需权限
         MethodPermission methodPermission = matched.getMethodPermission();

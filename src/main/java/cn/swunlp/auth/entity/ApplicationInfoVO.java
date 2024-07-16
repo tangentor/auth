@@ -51,6 +51,14 @@ public class ApplicationInfoVO {
     @Schema(description = "应用是否上线")
     private boolean online;
 
+    /**
+     * 是否核心应用
+     */
+    @Schema(description = "是否核心应用")
+    private boolean core;
+
+
+
     /*
      * 挂载的路由路径
      */

@@ -4,8 +4,8 @@ server:
     context-path: /auth
 logging:
   level:
-    cn.swunlp.*: warn
-    feign: debug
+    cn.swunlp.*: info
+    feign: info
 spring:
   data:
     redis:
@@ -20,5 +20,17 @@ spring:
         server-addr: 192.168.0.9:8848
         group: DEV
         namespace: 1f84f72e-a565-441a-b1cb-a3c71a94431e
+    inetutils:
+      preferred-networks: 10.9.8.0/24
   application:
     name: authService
+security:
+  access-control:
+    enable: true
+  auth:
+    app:
+      name: authservice
+      code: 019AE33F
+    strategy:
+      roles: null
+      enable: true

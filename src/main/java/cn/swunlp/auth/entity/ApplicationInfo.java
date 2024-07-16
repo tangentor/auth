@@ -35,6 +35,11 @@ public class ApplicationInfo {
     private String description;
 
     /**
+     * 是否核心应用
+     */
+    private boolean core;
+
+    /**
      * 是否可访问
      */
     private boolean accessible;

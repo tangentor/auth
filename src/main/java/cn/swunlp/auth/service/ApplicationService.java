@@ -1,8 +1,6 @@
 package cn.swunlp.auth.service;
 
-import cn.swunlp.auth.entity.ApplicationInfo;
-import cn.swunlp.auth.entity.ApplicationInfoApplyDTO;
-import cn.swunlp.auth.entity.ApplicationInfoVO;
+import cn.swunlp.auth.entity.*;
 
 import java.util.List;
 
@@ -32,11 +30,14 @@ public interface ApplicationService {
     /**
      * 编辑应用信息
      */
-    boolean edit(ApplicationInfo applicationInfo);
+    boolean edit(ApplicationInfoDTO applicationInfo);
 
     /**
      * 删除应用信息
      */
     boolean delete(String id);
 
+    ApplicationInfoVO detail(String id);
+
+    boolean updateAuth(ApplicationAuthInfoDTO authInfo);
 }

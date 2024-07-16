@@ -52,6 +52,10 @@ public class RoutePermissionManager {
      * @param routePermissionList 路由权限列表
      */
     public void addRoutePermission(String prefix, List<RoutePermission> routePermissionList) {
+        addRoutePermission(prefix, routePermissionList, expireTime);
+    }
+
+    public void addRoutePermission(String prefix, List<RoutePermission> routePermissionList,int expireTime) {
         routePermissionMap.put(prefix, routePermissionList);
         //删除之前的
         routePermissionCache.remove(prefix);
